@@ -1,0 +1,30 @@
+#######################################
+# Syntax Coloring Map SD_ZH03B
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+SD_ZH03B	KEYWORD1
+mode_t	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+setQandAmode	KEYWORD2
+setInitiativeMode	KEYWORD2
+setMode	KEYWORD2
+getMode	KEYWORD2
+sleep	KEYWORD2
+wakeup	KEYWORD2
+readData	KEYWORD2
+getPM1_0	KEYWORD2
+getPM2_5	KEYWORD2
+getPM10_0	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+IU_MODE	LITERAL1
+QA_MODE	LITERAL1
