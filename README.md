@@ -4,7 +4,7 @@ by **ShaggyDog18@gmail.com**, JULY 2020
 
 github: https://github.com/ShaggyDog18/SD_ZH03B
 
-Library for a **ZH03B Laser Dust Sensor Module** by [Zhengzhou Winsen Electronics Technology Co., Ltd](www.winsen-sensor.com)
+Arduino library for a **ZH03B Laser Dust Sensor Module** by [Zhengzhou Winsen Electronics Technology Co., Ltd](www.winsen-sensor.com)
 
 License: [GNU GPLv3](https://choosealicense.com/licenses/gpl-3.0/)
 
@@ -24,9 +24,9 @@ The range of measured **PM1.0, PM2.5 and PM10** values are all **0-1000ug/m3**.
 - **mode_t getMode()** - returns current mode.
 - **bool sleep(void)** - put the module into a "Dormaint" mode. Dormancy consumption current <20mA. Returns `true` if command is confirmed by the module as successful.
 - **bool wakeup(void)** - wake up from a "Dormaint" mode. Working Current <120mA. Returns `true` if command is confirmed by the module as successful.
-- **uint16_t getPM1_0(void)** - returns a value of PM1.0 particles concentration in ug/m3 
-- **uint16_t getPM2_5(void)** - returns a value of PM2.5 particles concentration in ug/m3 
-- **uint16_t getPM10_0(void)** - returns a value of PM10 particles concentration in ug/m3 
+- **uint16_t getPM1_0(void)** - returns a value of `PM1.0` particles concentration in ug/m3 
+- **uint16_t getPM2_5(void)** - returns a value of `PM2.5` particles concentration in ug/m3 
+- **uint16_t getPM10_0(void)** - returns a value of `PM10` particles concentration in ug/m3 
 
 For more details on the library use refer to the example that utilizes all library methods.
 
