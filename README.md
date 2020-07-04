@@ -34,6 +34,6 @@ For more details on the library use refer to the example that utilizes all libra
 
 The library developed for Arduino UNO, NANO, Pro Mini, ESP8266, etc.
 
-**If you like and use this library please consider making a small donation using [PayPal](https://paypal.me/shaggyDog18/3USD)**
+**If you like and use this library please consider making a small "cup of coffee" donation using [PayPal](https://paypal.me/shaggyDog18/3USD)**
 
 Enjoy!
