@@ -63,13 +63,15 @@ enum mode_t : uint8_t {
   SD_ZH03B( Stream& serial );
 
 
-/* Function sets the "Q&A" (QA) operstion mode. 
-   The module launches in that mode by default and shoot data to the COM port every second. 
+/* 
+  Function sets the "Q&A" (QA) operstion mode. 
+  The module launches in that mode by default and shoot data to the COM port every second. 
 */
   void setQandAmode(void);
 
-/* Function sets the "Initiative Upload" (IU) operstion mode. 
-   The module launches in that mode by default and shoot data to the COM port every second. 
+/* 
+  Function sets the "Initiative Upload" (IU) operstion mode. 
+  The module launches in that mode by default and shoot data to the COM port every second. 
 */
   void setInitiativeMode(void);
 
@@ -90,12 +92,13 @@ enum mode_t : uint8_t {
 */
   bool sleep(void); 
 
-/*Function wakes up from a "Dormaint" mode. Working Current <120mA. 
+/*
+  Function wakes up from a "Dormaint" mode. Working Current <120mA. 
   Returns true if command is confirmed by the module as successful.
 */
   bool wakeup(void);
 
-/**
+/*
   Function reads data from the module; 
   Returns true if data are read, verified and valid (validate by calculating checkSum of the data received).
   After successful data reading the values of PM concentration to be picked up by getPMxxx() functions below
@@ -155,7 +158,7 @@ struct ZH03B_frameQAstruct_t {  // 24 bytes - SIZEOF_FRAME in Initiative Upload 
   uint8_t  checksum;
 };
 
-union union_t {
+union unionFrame_t {
   ZH03B_frameIUstruct_t  ZH03B_IUframe;
   ZH03B_frameQAstruct_t  ZH03B_QAframe;
   uint8_t buffer[sizeof(ZH03B_frameIUstruct_t)];
