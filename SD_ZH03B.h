@@ -165,7 +165,7 @@ union unionFrame_t {
 } _unionFrame;
 
   // send command to the module
-  void sendCmd(const char ch1, const char ch2, const char ch3);
+  void sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3);
 
   // get confirmation of the previously sent command
   bool getCmdConfirmation(void);
