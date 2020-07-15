@@ -42,7 +42,7 @@ The library developed for Arduino UNO, NANO, Pro Mini, ESP8266, etc.
 #include <SD_ZH03B.h>
 
 extern "C" {
-#include <string.h>
+//#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 }
@@ -60,12 +60,15 @@ SD_ZH03B::SD_ZH03B(Stream& serial): _serial(serial) {
   _serial.setTimeout(100);
 }
 
+// Class Destructor 
+SD_ZH03B::~SD_ZH03B(){}
+
 
 bool SD_ZH03B::readData(void) {
 
   if( _currentMode == QA_MODE ) {  // request data: send a request command
-    sendCmd( 0x86, 0x00, 0x79 );
-    delay(10);
+    _sendCmd( 0x86, 0x00, 0x79 );
+    delay(20);
   }
 
   // expect data header to fly in
@@ -73,13 +76,12 @@ bool SD_ZH03B::readData(void) {
     _serial.read();
   }
 
-  if( _serial.available() < _sizeFrame ) {  //overall 24 bytes or 9 bytes for QA_MODE
+  if( _serial.available() < _sizeFrame ) {  //overall 24 bytes for IU_MODE or 9 bytes for QA_MODE
     return false;
   }
 
   // read the entire buffer of 24 or 9 bytes
   _serial.readBytes( _unionFrame.buffer, _sizeFrame );
-  _serial.flush();  // Waits for the transmission of outgoing serial data to complete.
 
   #ifdef DEBUG
     //Serial.println("Initial buffer");
@@ -139,6 +141,7 @@ bool SD_ZH03B::readData(void) {
         calcCheckSum += _unionFrame.buffer[i];
       }
       calcCheckSum = (~calcCheckSum)+1; 
+
       if( calcCheckSum != _unionFrame.ZH03B_QAframe.checksum ) {
         #ifdef DEBUG
           Serial.println( "Q&A Check sum error" );
@@ -173,30 +176,30 @@ bool SD_ZH03B::readData(void) {
 void SD_ZH03B::setQandAmode(void) {
   _currentMode = QA_MODE;
   _sizeFrame = SIZEOF_QA_FRAME;
-  sendCmd( 0x78, 0x41, 0x46 );
+  _sendCmd( 0x78, 0x41, 0x46 );
 }
 
 
 void SD_ZH03B::setInitiativeMode(void) {  // default mode
   _currentMode = IU_MODE;
   _sizeFrame = SIZEOF_IU_FRAME;
-  sendCmd( 0x78, 0x40, 0x47 );
+  _sendCmd( 0x78, 0x40, 0x47 );
 }
 
 
 bool SD_ZH03B::sleep(void) {
-  sendCmd( 0xA7, 0x01, 0x57 );
-  return getCmdConfirmation();
+  _sendCmd( 0xA7, 0x01, 0x57 );
+  return _getCmdConfirmation();
 }
 
 
 bool SD_ZH03B::wakeup(void) {
-  sendCmd( 0xA7, 0x00, 0x58 );
-  return getCmdConfirmation();
+  _sendCmd( 0xA7, 0x00, 0x58 );
+  return _getCmdConfirmation();
 }
 
 
-bool SD_ZH03B::getCmdConfirmation(void) {
+bool SD_ZH03B::_getCmdConfirmation(void) {
 
   // wait for header to fly in
   while( (_serial.peek() != 0xFF ) && _serial.available() ) {
@@ -204,7 +207,6 @@ bool SD_ZH03B::getCmdConfirmation(void) {
   }
   
   _serial.readBytes( _unionFrame.buffer, 9 );  // read the response to a buffer
-  _serial.flush();  // Waits for the transmission of outgoing serial data to complete.
 
   // check up the received response
   if( _unionFrame.buffer[1] == 0xA7 && _unionFrame.buffer[2] == 0x01 && _unionFrame.buffer[8] == 0x58 )
@@ -213,7 +215,7 @@ bool SD_ZH03B::getCmdConfirmation(void) {
   return false;
 }
 
-void SD_ZH03B::sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3) {
+void SD_ZH03B::_sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3) {
   _serial.flush(); // clear buffer
 
   // send command header
@@ -229,28 +231,6 @@ void SD_ZH03B::sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3) 
   
   //send command tail/check value
   _serial.write(ch3);
+  _serial.flush();  // Waits for the transmission of outgoing serial data to complete.
 }
 
-
-/* old non-optomosed function of sending command
-
-void SD_ZH03B::sendCmd(const char * cmdBuf) {
-  //Clear RX
-  //while (_serial.available()) _serial.read();
-  _serial.flush(); 
-
-  // sent command header
-  _serial.write(0xFF); 
-  _serial.write(0x01);
-
-  // send command
-  _serial.write(cmdBuf[0]);    
-  _serial.write(cmdBuf[1]);
-
-  // send reserved 4 x zeros
-  for( uint8_t i = 0; i<4; i++ ) _serial.write(0x00);
-  
-  //send command tail/check value
-  _serial.write(cmdBuf[2]);
-}
-*/

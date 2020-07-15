@@ -55,28 +55,32 @@ enum mode_t : uint8_t {
 };
 
 /**
-* @brief Constructor for ZH03B_SD class
+* @brief Constructor for SD_ZH03B class
 * @param  a Stream ({Software/Hardware}Serial) object.
 * @note The serial stream should be already initialized
 * @return  void
 */
   SD_ZH03B( Stream& serial );
 
+/* 
+  Class Destructur
+*/
+  ~SD_ZH03B();
 
 /* 
-  Function sets the "Q&A" (QA) operstion mode. 
+  Sets the "Q&A" (QA) operstion mode. 
   The module launches in that mode by default and shoot data to the COM port every second. 
 */
   void setQandAmode(void);
 
 /* 
-  Function sets the "Initiative Upload" (IU) operstion mode. 
+  Sets the "Initiative Upload" (IU) operstion mode. 
   The module launches in that mode by default and shoot data to the COM port every second. 
 */
   void setInitiativeMode(void);
 
 /*
-  Function set the mode by defining it by a parameter IU_MODE and QA_MODE. 
+  Sets the mode by defining it by a parameter IU_MODE and QA_MODE. 
   Can be used interchangibly with above setMode functions. 
 */
   void setMode( const mode_t mode = IU_MODE );
@@ -87,26 +91,26 @@ enum mode_t : uint8_t {
   mode_t getMode(void);
 
 /*
-  Function puts the module into a "Dormaint" mode. Dormancy consumption current <20mA. 
+  Puts the module into a "Dormaint" mode. Dormancy consumption current <20mA. 
   Returns true if command is confirmed by the module as successful.
 */
   bool sleep(void); 
 
 /*
-  Function wakes up from a "Dormaint" mode. Working Current <120mA. 
+  Wakes up the module from a "Dormaint" mode. Working Current <120mA. 
   Returns true if command is confirmed by the module as successful.
 */
   bool wakeup(void);
 
 /*
-  Function reads data from the module; 
+  Reads data from the module; 
   Returns true if data are read, verified and valid (validate by calculating checkSum of the data received).
   After successful data reading the values of PM concentration to be picked up by getPMxxx() functions below
 */
   bool readData(void);
 
 /**
-* @brief Function that returns the latest PM 1.0 reading
+* @brief Returns the latest PM 1.0 reading
 * @note  in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 1.0 reading (unsigned int16)*/
 uint16_t getPM1_0(void) {
@@ -114,7 +118,7 @@ uint16_t getPM1_0(void) {
 }
 
 /**
-* @brief Function that returns the latest PM 2.5 reading
+* @brief Returns the latest PM 2.5 reading
 * @note in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 2.5 reading (unsigned int16)*/
 uint16_t getPM2_5(void) {
@@ -122,7 +126,7 @@ uint16_t getPM2_5(void) {
 }
 
 /**
-* @brief Function that returns the latest PM 10.0 reading
+* @brief Returns the latest PM 10.0 reading
 * @note in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 10.0 reading (unsigned int16)*/
 uint16_t getPM10_0(void) {
@@ -150,7 +154,7 @@ struct ZH03B_frameIUstruct_t {  // 24 bytes - SIZEOF_FRAME in Initiative Upload 
   uint16_t checksum;
 };
 
-struct ZH03B_frameQAstruct_t {  // 24 bytes - SIZEOF_FRAME in Initiative Upload mode
+struct ZH03B_frameQAstruct_t {  // 9 bytes - SIZEOF_FRAME in Initiative Upload mode
   uint8_t  frameHeader[2];
   uint16_t concPM2_5;
   uint16_t concPM10_0;
@@ -165,16 +169,12 @@ union unionFrame_t {
 } _unionFrame;
 
   // send command to the module
-  void sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3);
+  void _sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3);
 
   // get confirmation of the previously sent command
-  bool getCmdConfirmation(void);
+  bool _getCmdConfirmation(void);
 
   mode_t _currentMode = IU_MODE;
 
   uint8_t _sizeFrame = SIZEOF_IU_FRAME;
-
-  // void sendCmd(const char * cmdBuf);
 };
-
-
