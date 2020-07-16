@@ -229,7 +229,7 @@ void SD_ZH03B::_sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3)
   // send reserved 4 x zeros
   for( uint8_t i = 0; i<4; i++ ) _serial.write((uint8_t)0x00);
   
-  //send command tail/check value
+  //send command tail: checkSum value
   _serial.write(ch3);
   _serial.flush();  // Waits for the transmission of outgoing serial data to complete.
 }
