@@ -77,6 +77,10 @@ bool SD_ZH03B::readData(void) {
   }
 
   if( _serial.available() < _sizeFrame ) {  //overall 24 bytes for IU_MODE or 9 bytes for QA_MODE
+    #ifdef DEBUG
+      Serial.print( "Buffer is short: should be 24bytes in IU and 9bytes in Q&A: ");
+      Serial.println( _serial.available() );
+    #endif
     return false;
   }
 
@@ -84,20 +88,20 @@ bool SD_ZH03B::readData(void) {
   _serial.readBytes( _unionFrame.buffer, _sizeFrame );
 
   #ifdef DEBUG
-    //Serial.println("Initial buffer");
-    //for( uint8_t i = 0; i < _sizeFrame; i++ ) {
-    //  Serial.print( _unionFrame.buffer[i], HEX); Serial.print( ":");
-    //}
-    //Serial.println();
+    Serial.println("Initial buffer");
+    for( uint8_t i = 0; i < _sizeFrame; i++ ) {
+      Serial.print( _unionFrame.buffer[i], HEX); Serial.print( ":");
+    }
+    Serial.println();
 
     char printbuf[80];
     Serial.print("ZH03B ");
     if( _currentMode == IU_MODE )
       sprintf(printbuf, "IU Header:[%02x %02x] (%0x) ", 
-        _unionFrame.ZH03B_IUframe.frameHeader[0], _unionFrame.ZH03B_IUframe.frameHeader[1], _unionFrame.ZH03B_IUframe.frameLen);
+      _unionFrame.ZH03B_IUframe.frameHeader[0], _unionFrame.ZH03B_IUframe.frameHeader[1], _unionFrame.ZH03B_IUframe.frameLen);
     else
       sprintf(printbuf, "Q&A Header[%02x %02x]", 
-        _unionFrame.ZH03B_QAframe.frameHeader[0], _unionFrame.ZH03B_QAframe.frameHeader[1] );
+      _unionFrame.ZH03B_QAframe.frameHeader[0], _unionFrame.ZH03B_QAframe.frameHeader[1] );
 
     Serial.println(printbuf);
   #endif
