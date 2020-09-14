@@ -159,7 +159,7 @@ bool SD_ZH03B::readData(void) {
 }
 
 
- void SD_ZH03B::setMode( const mode_t _mode ) {
+void SD_ZH03B::setMode( const mode_t _mode ) {
   switch( _mode ) {  
   case IU_MODE:
     setInitiativeMode();
@@ -169,11 +169,6 @@ bool SD_ZH03B::readData(void) {
     setQandAmode();
     break;
   }
-}
-
-
- SD_ZH03B::mode_t SD_ZH03B::getMode(void) {
-  return _currentMode;
 }
 
 
@@ -204,7 +199,6 @@ bool SD_ZH03B::wakeup(void) {
 
 
 bool SD_ZH03B::_getCmdConfirmation(void) {
-
   // wait for header to fly in
   while( (_serial.peek() != 0xFF ) && _serial.available() ) {
     _serial.read();

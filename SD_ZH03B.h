@@ -88,7 +88,9 @@ enum mode_t : uint8_t {
 /*
   Function returns current mode.
 */
-  mode_t getMode(void);
+  mode_t getMode(void) const {
+    return _currentMode;
+  }
 
 /*
   Puts the module into a "Dormaint" mode. Dormancy consumption current <20mA. 
@@ -113,7 +115,7 @@ enum mode_t : uint8_t {
 * @brief Returns the latest PM 1.0 reading
 * @note  in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 1.0 reading (unsigned int16)*/
-uint16_t getPM1_0(void) {
+uint16_t getPM1_0(void) const {
   return _currentMode == IU_MODE ? _unionFrame.ZH03B_IUframe.concPM1_0 : _unionFrame.ZH03B_QAframe.concPM1_0;
 }
 
@@ -121,7 +123,7 @@ uint16_t getPM1_0(void) {
 * @brief Returns the latest PM 2.5 reading
 * @note in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 2.5 reading (unsigned int16)*/
-uint16_t getPM2_5(void) {
+uint16_t getPM2_5(void) const {
   return _currentMode == IU_MODE ? _unionFrame.ZH03B_IUframe.concPM2_5 : _unionFrame.ZH03B_QAframe.concPM2_5;
 }
 
@@ -129,7 +131,7 @@ uint16_t getPM2_5(void) {
 * @brief Returns the latest PM 10.0 reading
 * @note in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 10.0 reading (unsigned int16)*/
-uint16_t getPM10_0(void) {
+uint16_t getPM10_0(void) const {
   return _currentMode == IU_MODE ? _unionFrame.ZH03B_IUframe.concPM10_0 : _unionFrame.ZH03B_QAframe.concPM10_0;
 }
 
