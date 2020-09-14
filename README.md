@@ -21,7 +21,7 @@ The range of measured **PM1.0, PM2.5 and PM10** values are all **0-1000ug/m3**.
 - `void setInitiativeMode(void)` - sets the "Initiative Upload" (IU) operation mode. The module launches in that mode by default and shoot data to the COM port every second. So, no need to set up the mode after the module initialization.
 - `void setQandAmode(void)` - sets the Q&A operation mode; Module sends the data on demand.
 - `void setMode( const mode_t mode = IU_MODE )` - same as above two methods, can be used interchangable: sets the operation mode by using pre-defined constants IU_MODE and QA_MODE. Can be used interchangibly. 
-- `mode_t getMode()` - returns current mode.
+- `mode_t getMode(void)` - returns current mode.
 - `bool sleep(void)` - put the module into a "Dormaint" mode. Dormancy consumption current <20mA. Returns `true` if command is confirmed by the module as successful.
 - `bool wakeup(void)` - wake up from a "Dormaint" mode. Working Current <120mA. Returns `true` if command is confirmed by the module as successful.
 - `uint16_t getPM1_0(void)` - returns a value of `PM1.0` particles concentration in ug/m3 
