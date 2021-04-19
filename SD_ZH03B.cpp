@@ -56,8 +56,11 @@ extern "C" {
  * @note The serial stream should be already initialized
  * @return  void
  */
-SD_ZH03B::SD_ZH03B(Stream& serial): _serial(serial) {
+SD_ZH03B::SD_ZH03B(Stream& serial, type_t sensorModel): _serial(serial),_sensorModel(sensorModel) {
   _serial.setTimeout(100);
+  // new to support ZH06
+  if(_sensorModel == SENSOR_ZH06) _sizeFrame = ZH06_SIZEOF_IU_FRAME;
+  // ---
 }
 
 // Class Destructor 
@@ -75,7 +78,7 @@ bool SD_ZH03B::readData(void) {
     _serial.read();
   }
 
-  if( _serial.available() < _sizeFrame ) {  //overall 24 bytes for IU_MODE or 9 bytes for QA_MODE
+  if( _serial.available() < _sizeFrame ) {  //overall 24/32 bytes for IU_MODE or 9 bytes for QA_MODE
     #ifdef DEBUG
       Serial.print( "Buffer is short: should be 24bytes in IU and 9bytes in Q&A: ");
       Serial.println( _serial.available() );
@@ -97,17 +100,17 @@ bool SD_ZH03B::readData(void) {
     Serial.print("ZH03B ");
     if( _currentMode == IU_MODE )
       sprintf(printbuf, "IU Header:[%02x %02x] (%0x) ", 
-      _unionFrame.ZH03B_IUframe.frameHeader[0], _unionFrame.ZH03B_IUframe.frameHeader[1], _unionFrame.ZH03B_IUframe.frameLen);
+      _unionFrame.ZH03_IUframe.frameHeader[0], _unionFrame.ZH03_IUframe.frameHeader[1], _unionFrame.ZH03_IUframe.frameLen);
     else
       sprintf(printbuf, "Q&A Header[%02x %02x]", 
-      _unionFrame.ZH03B_QAframe.frameHeader[0], _unionFrame.ZH03B_QAframe.frameHeader[1] );
+      _unionFrame.ZHxx_QAframe.frameHeader[0], _unionFrame.ZHxx_QAframe.frameHeader[1] );
 
     Serial.println(printbuf);
   #endif
   
   // re-sort the buffer: swap high and low bytes since they are not in the "machine" order 
   uint8_t tmp;
-  uint8_t nPairsToSwap = (_currentMode == IU_MODE) ? 11 : 3;
+  uint8_t nPairsToSwap = (_currentMode == IU_MODE) ? ((_sensorModel == SENSOR_ZH03B) ? 11 : 15 ) : 3;
   for (uint8_t i = 1; i <= nPairsToSwap; i++) { 
     tmp = _unionFrame.buffer[2*i];
     _unionFrame.buffer[2*i]   = _unionFrame.buffer[2*i+1];
@@ -129,7 +132,14 @@ bool SD_ZH03B::readData(void) {
       for( uint8_t i = 0; i < _sizeFrame-2; i++ ) {
         calcCheckSum += _unionFrame.buffer[i];
       }
-      if( calcCheckSum != _unionFrame.ZH03B_IUframe.checksum ) {
+	  // new to support ZH06
+	  uint16_t readCheckSum; 
+	  if( _sensorModel == SENSOR_ZH06 ) 
+	    readCheckSum = _unionFrame.ZH06_IUframe.checksum;
+	  else 
+	    readCheckSum = _unionFrame.ZH03_IUframe.checksum;
+	  // ---
+      if( calcCheckSum != readCheckSum ) {
         #ifdef DEBUG
           Serial.println( "IU Check sum error" );
         #endif
@@ -145,7 +155,7 @@ bool SD_ZH03B::readData(void) {
       }
       calcCheckSum = (~calcCheckSum)+1; 
 
-      if( calcCheckSum != _unionFrame.ZH03B_QAframe.checksum ) {
+      if( calcCheckSum != _unionFrame.ZHxx_QAframe.checksum ) {
         #ifdef DEBUG
           Serial.println( "Q&A Check sum error" );
         #endif
@@ -180,7 +190,12 @@ void SD_ZH03B::setQandAmode(void) {
 
 void SD_ZH03B::setInitiativeMode(void) {  // default mode
   _currentMode = IU_MODE;
-  _sizeFrame = SIZEOF_IU_FRAME;
+
+  if( _sensorModel == SENSOR_ZH03B )
+	_sizeFrame = ZH03_SIZEOF_IU_FRAME;
+  else
+  	_sizeFrame = ZH06_SIZEOF_IU_FRAME;
+	
   _sendCmd( 0x78, 0x40, 0x47 );
 }
 
@@ -230,4 +245,3 @@ void SD_ZH03B::_sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3)
   _serial.write(ch3);
   _serial.flush();  // Waits for the transmission of outgoing serial data to complete.
 }
-

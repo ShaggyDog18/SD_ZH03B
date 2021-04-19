@@ -54,13 +54,17 @@ enum mode_t : uint8_t {
   QA_MODE      // Q and A (QA) Mode: provides data on demand
 };
 
+enum type_t : uint8_t {
+	SENSOR_ZH03B,
+	SENSOR_ZH06
+};
 /**
 * @brief Constructor for SD_ZH03B class
 * @param  a Stream ({Software/Hardware}Serial) object.
 * @note The serial stream should be already initialized
 * @return  void
 */
-  SD_ZH03B( Stream& serial );
+  SD_ZH03B( Stream& serial, type_t _sensorModel = SENSOR_ZH03B );
 
 /* 
   Class Destructur
@@ -116,7 +120,7 @@ enum mode_t : uint8_t {
 * @note  in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 1.0 reading (unsigned int16)*/
   uint16_t getPM1_0(void) const {
-    return _currentMode == IU_MODE ? _unionFrame.ZH03B_IUframe.concPM1_0 : _unionFrame.ZH03B_QAframe.concPM1_0;
+    return _currentMode == IU_MODE ? _unionFrame.ZH03_IUframe.concPM1_0 : _unionFrame.ZHxx_QAframe.concPM1_0;
   }
 
 /**
@@ -124,7 +128,7 @@ enum mode_t : uint8_t {
 * @note in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 2.5 reading (unsigned int16)*/
   uint16_t getPM2_5(void) const {
-    return _currentMode == IU_MODE ? _unionFrame.ZH03B_IUframe.concPM2_5 : _unionFrame.ZH03B_QAframe.concPM2_5;
+    return _currentMode == IU_MODE ? _unionFrame.ZH03_IUframe.concPM2_5 : _unionFrame.ZHxx_QAframe.concPM2_5;
   }
 
 /**
@@ -132,16 +136,17 @@ enum mode_t : uint8_t {
 * @note in IU_Mode Sensor reports new reading ~ every 1 sec.
 * @return  PM 10.0 reading (unsigned int16)*/
   uint16_t getPM10_0(void) const {
-    return _currentMode == IU_MODE ? _unionFrame.ZH03B_IUframe.concPM10_0 : _unionFrame.ZH03B_QAframe.concPM10_0;
+    return _currentMode == IU_MODE ? _unionFrame.ZH03_IUframe.concPM10_0 : _unionFrame.ZHxx_QAframe.concPM10_0;
   }
 
-#define SIZEOF_IU_FRAME 24
+#define ZH03_SIZEOF_IU_FRAME 24
+#define ZH06_SIZEOF_IU_FRAME 32
 #define SIZEOF_QA_FRAME 9
 
 private:
   Stream& _serial;
 
-struct ZH03B_frameIUstruct_t {  // 24 bytes - SIZEOF_FRAME in Initiative Upload mode
+struct ZH03_frameIUstruct_t {  // 24 bytes - SIZEOF_FRAME in Initiative Upload mode
   uint8_t  frameHeader[2];
   uint16_t frameLen;
   uint16_t res1;
@@ -156,7 +161,26 @@ struct ZH03B_frameIUstruct_t {  // 24 bytes - SIZEOF_FRAME in Initiative Upload 
   uint16_t checksum;
 };
 
-struct ZH03B_frameQAstruct_t {  // 9 bytes - SIZEOF_FRAME in Initiative Upload mode
+struct ZH06_frameIUstruct_t {  // 32 bytes - SIZEOF_FRAME in Initiative Upload mode
+  uint8_t  frameHeader[2];
+  uint16_t frameLen;
+  uint16_t res1;
+  uint16_t res2;
+  uint16_t res3;
+  uint16_t concPM1_0;
+  uint16_t concPM2_5;
+  uint16_t concPM10_0;
+  uint16_t res4;
+  uint16_t res5;
+  uint16_t res6;
+  uint16_t res7;
+  uint16_t res8;
+  uint16_t res9;
+  uint16_t res10;
+  uint16_t checksum;
+};
+
+struct ZHxx_frameQAstruct_t {  // 9 bytes - SIZEOF_FRAME in Initiative Upload mode
   uint8_t  frameHeader[2];
   uint16_t concPM2_5;
   uint16_t concPM10_0;
@@ -165,9 +189,10 @@ struct ZH03B_frameQAstruct_t {  // 9 bytes - SIZEOF_FRAME in Initiative Upload m
 };
 
 union unionFrame_t {
-  ZH03B_frameIUstruct_t  ZH03B_IUframe;
-  ZH03B_frameQAstruct_t  ZH03B_QAframe;
-  uint8_t buffer[sizeof(ZH03B_frameIUstruct_t)];
+  ZH03_frameIUstruct_t  ZH03_IUframe;
+  ZH06_frameIUstruct_t  ZH06_IUframe;
+  ZHxx_frameQAstruct_t  ZHxx_QAframe;
+  uint8_t buffer[sizeof(ZH06_frameIUstruct_t)];
 } _unionFrame;
 
   // send command to the module
@@ -177,6 +202,7 @@ union unionFrame_t {
   bool _getCmdConfirmation(void);
 
   mode_t _currentMode = IU_MODE;
+  type_t _sensorModel = SENSOR_ZH03B;
 
-  uint8_t _sizeFrame = SIZEOF_IU_FRAME;
+  uint8_t _sizeFrame = ZH03_SIZEOF_IU_FRAME;
 };

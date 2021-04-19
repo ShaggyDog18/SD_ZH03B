@@ -4,12 +4,16 @@
 //Create an instance of software serial
 
 // Arduino UNO, Nano, Pro Mini, etc 
-//SoftwareSerial ZHSerial(4, 5); // RX, TX
+SoftwareSerial ZHSerial(4, 5); // RX, TX
 
 // ESP8266
-SoftwareSerial ZHSerial(D1, D2); // RX, TX
-SD_ZH03B ZH03B( ZHSerial );
+//SoftwareSerial ZHSerial(D1, D2); // RX, TX
 
+//SD_ZH03B ZH03B( ZHSerial ); // sensor type by default is SENSOR_ZH03B; same as the line below: 
+SD_ZH03B ZH03B( ZHSerial, SD_ZH03B::SENSOR_ZH03B );  // same as the line above
+
+// set the new SH06 sensor: define in the constructor
+//SD_ZH03B ZH03B( ZHSerial, SD_ZH03B::SENSOR_ZH06 );
 
 void setup() {
     Serial.begin(9600);
