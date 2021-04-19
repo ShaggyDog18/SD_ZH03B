@@ -56,7 +56,7 @@ extern "C" {
  * @note The serial stream should be already initialized
  * @return  void
  */
-SD_ZH03B::SD_ZH03B(Stream& serial, type_t sensorModel): _serial(serial),_sensorModel(sensorModel) {
+SD_ZH03B::SD_ZH03B(Stream& serial, type_t sensorModel): _serial(serial), _sensorModel(sensorModel) {
   _serial.setTimeout(100);
   // new to support ZH06
   if(_sensorModel == SENSOR_ZH06) _sizeFrame = ZH06_SIZEOF_IU_FRAME;
@@ -133,13 +133,8 @@ bool SD_ZH03B::readData(void) {
         calcCheckSum += _unionFrame.buffer[i];
       }
 	  // new to support ZH06
-	  uint16_t readCheckSum; 
-	  if( _sensorModel == SENSOR_ZH06 ) 
-	    readCheckSum = _unionFrame.ZH06_IUframe.checksum;
-	  else 
-	    readCheckSum = _unionFrame.ZH03_IUframe.checksum;
-	  // ---
-      if( calcCheckSum != readCheckSum ) {
+	  if( calcCheckSum != (_sensorModel == SENSOR_ZH03B ? _unionFrame.ZH03_IUframe.checksum : _unionFrame.ZH06_IUframe.checksum) ) {
+      //if( calcCheckSum != readCheckSum ) {
         #ifdef DEBUG
           Serial.println( "IU Check sum error" );
         #endif

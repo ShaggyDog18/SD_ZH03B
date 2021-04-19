@@ -58,6 +58,7 @@ enum type_t : uint8_t {
 	SENSOR_ZH03B,
 	SENSOR_ZH06
 };
+
 /**
 * @brief Constructor for SD_ZH03B class
 * @param  a Stream ({Software/Hardware}Serial) object.
@@ -203,6 +204,5 @@ union unionFrame_t {
 
   mode_t _currentMode = IU_MODE;
   type_t _sensorModel = SENSOR_ZH03B;
-
   uint8_t _sizeFrame = ZH03_SIZEOF_IU_FRAME;
 };
