@@ -162,6 +162,14 @@ bool SD_ZH03B::readData(void) {
   return true;
 }
 
+int SD_ZH03B::RX_flush(void){
+  delay(100);  
+  int spurious_count;  
+  for(spurious_count = 0;  _serial.available(); ++spurious_count ) {
+     _serial.read();
+  } 
+  return spurious_count;
+}
 
 void SD_ZH03B::setMode( const mode_t _mode ) {
   switch( _mode ) {  
@@ -181,10 +189,7 @@ void SD_ZH03B::setQandAmode(void) {
   _sizeFrame = SIZEOF_QA_FRAME;
   _sendCmd( 0x78, 0x41, 0x46 );
  
-  delay(100);
-  while(  _serial.available() ) { 
-    _serial.read();
-  } 
+  RX_flush();
 }
 
 
@@ -198,10 +203,7 @@ void SD_ZH03B::setInitiativeMode(void) {  // default mode
 	
   _sendCmd( 0x78, 0x40, 0x47 );
 
-  delay(100);  
-  while(  _serial.available() ) {
-    _serial.read();
-  } 
+  RX_flush();
 }
 
 
@@ -249,10 +251,8 @@ bool SD_ZH03B::_getCmdConfirmation(void) {
 
 void SD_ZH03B::_sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3) {
 
-  while(  _serial.available() ) {
-    _serial.read();
-  }  
   _serial.flush(); // clear buffer
+  RX_flush();
 
   // send command header
   _serial.write((uint8_t)0xFF); 
