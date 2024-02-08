@@ -139,6 +139,13 @@ enum type_t : uint8_t {
   uint16_t getPM10_0(void) const {
     return _currentMode == IU_MODE ? _unionFrame.ZH03_IUframe.concPM10_0 : _unionFrame.ZHxx_QAframe.concPM10_0;
   }
+  
+/**
+*  @brief read spurious data on RX before sending  
+*  @note  unpredicatble a sensor may havesent spurious data,which can confuse later data reads
+*  @return nunmber of spurious bytes read */
+
+int RX_flush(void);
 
 #define ZH03_SIZEOF_IU_FRAME 24
 #define ZH06_SIZEOF_IU_FRAME 32

@@ -162,6 +162,14 @@ bool SD_ZH03B::readData(void) {
   return true;
 }
 
+int SD_ZH03B::RX_flush(void){
+  delay(100);  
+  int spurious_count;  
+  for(spurious_count = 0;  _serial.available(); ++spurious_count ) {
+     _serial.read();
+  } 
+  return spurious_count;
+}
 
 void SD_ZH03B::setMode( const mode_t _mode ) {
   switch( _mode ) {  
@@ -180,6 +188,8 @@ void SD_ZH03B::setQandAmode(void) {
   _currentMode = QA_MODE;
   _sizeFrame = SIZEOF_QA_FRAME;
   _sendCmd( 0x78, 0x41, 0x46 );
+ 
+  RX_flush();
 }
 
 
@@ -192,6 +202,8 @@ void SD_ZH03B::setInitiativeMode(void) {  // default mode
   	_sizeFrame = ZH06_SIZEOF_IU_FRAME;
 	
   _sendCmd( 0x78, 0x40, 0x47 );
+
+  RX_flush();
 }
 
 
@@ -215,15 +227,32 @@ bool SD_ZH03B::_getCmdConfirmation(void) {
   
   _serial.readBytes( _unionFrame.buffer, 9 );  // read the response to a buffer
 
-  // check up the received response
-  if( _unionFrame.buffer[1] == 0xA7 && _unionFrame.buffer[2] == 0x01 && _unionFrame.buffer[8] == 0x58 )
-    return true;
+#ifdef DEBUG
+    Serial.println("Command confirmation");
+    for( uint8_t i = 0; i < 9; i++ ) {
+      Serial.print( _unionFrame.buffer[i], HEX); Serial.print( ":");
+    }    
+    Serial.println();
+#endif
 
+  // check up the received response
+  if( _unionFrame.buffer[1] == 0xA7 && _unionFrame.buffer[2] == 0x01 && _unionFrame.buffer[8] == 0x58 ){
+    return true;
+  }  
+
+  Serial.println("Command confirmation invalid:");
+  for( uint8_t i = 0; i < 9; i++ ) {
+    Serial.print( _unionFrame.buffer[i], HEX); Serial.print( ":");
+  }    
+  Serial.println();  
+    
   return false;
 }
 
 void SD_ZH03B::_sendCmd(const uint8_t ch1, const uint8_t ch2, const uint8_t ch3) {
+
   _serial.flush(); // clear buffer
+  RX_flush();
 
   // send command header
   _serial.write((uint8_t)0xFF); 
